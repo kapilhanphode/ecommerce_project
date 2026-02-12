@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+
+    <style>
+        /* Cart Container */
+        .cart-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        /* Product Card */
+        .product-card {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        /* Card Hover Effect */
+        .product-card:hover {
+            border: 1px solid #2874f0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Product Name */
+        .product-link {
+            font-weight: bold;
+            font-size: 16px;
+            text-decoration: none;
+            color: #000;
+            transition: color 0.3s ease;
+        }
+
+        /* Name Hover Effect Only */
+        .product-link:hover {
+            color: #2874f0;
+            text-decoration: underline;
+        }
+
+        /* Price */
+        .product-price {
+            margin: 10px 0;
+            font-size: 15px;
+            color: #555;
+        }
+
+        /* Remove Button */
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .remove-btn:hover {
+            background: #b02a37;
+        }
+
+        .product-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: #2874f0;
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+
+        .toggle-btn:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+
+    <h2>Your Cart</h2>
+
+    {% if products %}
+        <div class="cart-container">
+            {% for product in products %}
+                <div class="product-card">
+                    <a href="{% url 'product_detail' product.id %}" class="product-link">
+                        {{ product.name }}
+                    </a>
+                    <div class="product-description">
+                        <!-- Short version -->
+                        <span class="short-desc">
+                            {{ product.description|truncatewords:3 }}
+                        </span>
+
+                        <!-- Full version hidden initially -->
+                        <span class="full-desc" style="display:none;">
+                            {{ product.description }}
+                        </span>
+
+                        <!-- Show More button only if description is longer than 3 words -->
+                        {% if product.description|wordcount > 3 %}
+                            <button type="button"
+                                    class="toggle-btn"
+                                    onclick="toggleDescription(this)">
+                                More
+                            </button>
+                        {% endif %}
+                    </div>
+
+
+                    <div class="product-price">
+                        ₹{{ product.price|intcomma }}
+                    </div>
+
+                    <div class="quantity-control" style="margin:10px 0; display:flex; align-items:center; gap:5px;">
+
+                        <!-- Decrease button -->
+                        <form method="POST" action="{% url 'update_cart_quantity' product.id 'decrease' %}"
+                              style="display:flex; align-items:center;">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    style="padding:2px 6px; border:none; background:#dc3545; color:white; border-radius:3px; cursor:pointer;">
+                                −
+                            </button>
+                        </form>
+
+                        <!-- Quantity display -->
+                        <span style="padding:0 10px;">
+                            {{ product.cart_item_quantity }}
+                        </span>
+
+
+                        <!-- Increase button -->
+                        <form method="POST" action="{% url 'update_cart_quantity' product.id 'increase' %}"
+                              style="display:flex; align-items:center;">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    style="padding:2px 6px; border:none; background:#28a745; color:white; border-radius:3px; cursor:pointer;">
+                                +
+                            </button>
+                        </form>
+
+                    </div>
+
+
+                    <form method="POST"
+                          action="{% url 'remove_from_cart' product.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="remove-btn">
+                            Remove
+                        </button>
+                    </form>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Your cart is empty.</p>
+    {% endif %}
+
+    <script>
+        function toggleDescription(button) {
+            const container = button.parentElement;
+            const shortDesc = container.querySelector('.short-desc');
+            const fullDesc = container.querySelector('.full-desc');
+
+            if (fullDesc.style.display === "none") {
+                shortDesc.style.display = "none";
+                fullDesc.style.display = "inline";
+                button.innerText = "Less";
+            } else {
+                shortDesc.style.display = "inline";
+                fullDesc.style.display = "none";
+                button.innerText = "More";
+            }
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,114 @@
+{#{% extends 'base.html' %}#}
+{% load static %}
+
+<title>Contact TRooTech Business Solutions Pvt. Ltd.</title>
+
+{% block content %}
+    <style>
+        header {
+            background-color: #2874f0;
+            color: white;
+            padding: 20px 10px;
+            text-align: center;
+        }
+
+        .contact-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            font-family: Arial, sans-serif;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .contact-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .contact-header img {
+            width: 180px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+
+        .contact-header h1 {
+            margin: 0;
+            color: #2874f0;
+            font-size: 28px;
+        }
+
+        .contact-info {
+            background: #f1f3f6;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .contact-item {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .contact-item strong {
+            min-width: 100px;
+            color: #2874f0;
+        }
+
+        .google-reviews {
+            display: inline-block;
+            background: #fff3cd;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .map-container {
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 350px;
+            border: none;
+        }
+    </style>
+    <header>
+        <a href="{% url 'home' %}" style="color: #0f0f0f">Back to Home</a>
+    </header>
+
+    <div class="contact-container">
+        <div class="contact-header">
+            <img src="{% static 'store/images/trootech.jpg' %}" alt="TRooTech Logo">
+            <h1>TRooTech Business Solutions Pvt. Ltd.</h1>
+            <div class="google-reviews">⭐ 4.4152 Google reviews</div>
+            <div>Software company in Ahmedabad, Gujarat</div>
+        </div>
+
+        <div class="contact-info">
+            <div class="contact-item">
+                <strong>Address:</strong>
+                <span>605, 6th Floor, B Square-I, BRTS Road, near Neptune House Iscon, Ambli, Ahmedabad, Gujarat 380058</span>
+            </div>
+            <div class="contact-item">
+                <strong>Phone:</strong>
+                <span>090332 66951</span>
+            </div>
+        </div>
+
+        <!-- Optional: Google Maps -->
+        <div class="map-container">
+            <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3670.222349!2d72.565381!3d23.027437!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x395e84a3b2c6a1c7%3A0x5f4184b41f9c4f0!2sB%20Square-I%2C%20Ambli%2C%20Ahmedabad%2C%20Gujarat%20380058!5e0!3m2!1sen!2sin!4v1677654321098!5m2!1sen!2sin"
+                    allowfullscreen=""
+                    loading="lazy">
+            </iframe>
+        </div>
+    </div>
+{% endblock %}

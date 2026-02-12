@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+    <style>
+        .product-detail {
+            display: flex;
+            gap: 20px; /* space between image and details */
+            align-items: flex-start;
+            flex-wrap: wrap; /* responsive: stacks on small screens */
+        }
+
+        .product-detail img {
+            width: 100%; /* fixed width */
+            max-width: 300px;
+            height: auto;
+            object-fit: cover;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .product-info {
+            flex: 1; /* takes remaining space */
+            min-width: 250px;
+        }
+
+        table {
+            border-collapse: collapse;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        table th, table td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        table th {
+            background-color: #f2f2f2;
+        }
+    </style>
+
+    <div class="product-detail">
+        <div class="product-image">
+            <!-- Main product image -->
+            {% if product.main_image_list %}
+                <img id="main-image" src="{{ product.main_image_list.0.image.url }}" alt="{{ product.name }}">
+            {% else %}
+                <img id="main-image" src="https://via.placeholder.com/200x150?text=No+Image" alt="No image">
+            {% endif %}
+
+            <!-- All images (main and non-main) below the main image -->
+            {% if product.all_images %}
+                <div class="additional-images" style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                    {% for img in product.all_images %}
+                        <img class="thumbnail" src="{{ img.image.url }}" alt="{{ product.name }}"
+                             data-color="{{ img.color }}"
+                             style="width:80px; height:80px; object-fit:cover; border:1px solid #ccc; border-radius:3px;"
+                             onclick="changeMainImage(this)">
+                    {% endfor %}
+                </div>
+            {% endif %}
+            <form method="POST" action="{% url 'add_to_cart' product.id %}"
+                  style="margin-top: 8px; display:inline-block;">
+                {% csrf_token %}
+                <button type="submit"
+                        style="padding:8px 15px; background:#28a745; color:white; border:none; border-radius:4px;">
+                    Add to Cart
+                </button>
+            </form>
+
+        </div>
+
+
+        <script>
+            function changeMainImage(thumbnail) {
+                // Change main image
+                document.getElementById('main-image').src = thumbnail.src;
+
+                // Get color from clicked image
+                const color = thumbnail.getAttribute('data-color');
+
+                // Get product name element
+                const productNameEl = document.getElementById('product-name');
+                const baseName = productNameEl.getAttribute('data-base-name');
+
+                // Update product name
+                if (color) {
+                    productNameEl.innerText = `${baseName} (${color})`;
+                } else {
+                    productNameEl.innerText = baseName;
+                }
+
+                // Reset borders
+                document.querySelectorAll('.thumbnail').forEach(img => {
+                    img.style.border = "1px solid #ccc";
+                });
+
+                // Highlight selected thumbnail
+                thumbnail.style.border = "2px solid #007bff";
+            }
+        </script>
+
+
+        <div class="product-info">
+            <h2 id="product-name"
+                data-base-name="{{ product.name }}">
+                {{ product.name }}
+                {% if product.main_image_list and product.main_image_list.0.color %}
+                    ({{ product.main_image_list.0.color }})
+                {% endif %}
+            </h2>
+
+            <p><strong>Category:</strong> {{ product.category.name }}</p>
+            <p><strong>Description:</strong> {{ product.description }}</p>
+            <p><strong>Base Price:</strong> ₹{{ product.price|intcomma }}</p>
+
+
+            <h3>Available Variations:</h3>
+            <table>
+                <tr>
+                    <th>Color</th>
+                    <th>Size</th>
+                    <th>Stock</th>
+                    <th>Price</th>
+                </tr>
+                {% for v in variations %}
+                    <tr>
+                        <td>{{ v.color }}</td>
+                        <td>{{ v.size|default:"-" }}</td>
+                        <td>{{ v.stock }}</td>
+                        <td>₹{{ v.price|default:v.product.price|intcomma }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="4">No variations available.</td>
+                    </tr>
+                {% endfor %}
+            </table>
+
+            <a href="{% url 'home' %}" style="display:inline-block; margin-top:15px;">Back to Home</a>
+        </div>
+    </div>
+
+{% endblock %}

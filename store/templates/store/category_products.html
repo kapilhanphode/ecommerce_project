@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}{{ category.name }} Products{% endblock %}
+{% block content %}
+    {% if search_query %}
+        <h1 class="page-title">Search Results for "{{ search_query }}"</h1>
+    {% else %}
+        <h1 class="page-title">{{ category.name }} Products</h1>
+    {% endif %}
+    <style>
+        .product-grid {
+            display: flex;
+            flex-wrap: wrap; /* allows wrapping to next line */
+            gap: 20px; /* spacing between cards */
+        }
+
+        .product-card {
+            display: block; /* keep as block for content */
+            width: 100%; /* card width */
+            max-width: 250px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-decoration: none; /* remove underline from <a> */
+            color: inherit;
+        }
+
+        .product-card img {
+            width: 100%;
+            max-width: 300px;
+            max-height: 250px; /* limit height */
+            object-fit: contain; /* show full image */
+            border: 1px solid #ccc;
+        }
+
+    </style>
+
+    <div class="product-grid">
+        {% for p in products %}
+            <a href="{% url 'product_detail' p.id %}" class="product-card">
+                {% if p.main_image_list %}
+                    <img src="{{ p.main_image_list.0.image.url }}" alt="{{ p.name }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/200x150?text=No+Image" alt="No image">
+                {% endif %}
+                {% if p.all_images %}
+                    <div class="additional-images" style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+                        {% for img in p.all_images %}
+                            <img src="{{ img.image.url }}" alt="{{ p.name }}"
+                                 style="width:80px; height:80px; object-fit:cover; border:1px solid #ccc; border-radius:3px;">
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="product-info">
+                    <h3>{{ p.name }}</h3>
+                    <p class="price">₹{{ p.price|intcomma }}</p>
+                    <button class="view-btn">View Product</button>
+                </div>
+            </a>
+        {% endfor %}
+    </div>
+
+    <div class="actions">
+        <a href="{% url 'add_product' %}" class="action-btn">Add Product</a>
+        <a href="{% url 'add_variation' %}" class="action-btn">Add Variation</a>
+    </div>
+{% endblock %}
