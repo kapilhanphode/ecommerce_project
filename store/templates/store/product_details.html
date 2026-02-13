@@ -16,7 +16,7 @@
             width: 100%; /* fixed width */
             max-width: 300px;
             height: auto;
-            object-fit: cover;
+            object-fit: contain;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
@@ -58,7 +58,7 @@
                     {% for img in product.all_images %}
                         <img class="thumbnail" src="{{ img.image.url }}" alt="{{ product.name }}"
                              data-color="{{ img.color }}"
-                             style="width:80px; height:80px; object-fit:cover; border:1px solid #ccc; border-radius:3px;"
+                             style="width:80px; height:80px; object-fit:contain; border:1px solid #ccc; border-radius:3px;"
                              onclick="changeMainImage(this)">
                     {% endfor %}
                 </div>

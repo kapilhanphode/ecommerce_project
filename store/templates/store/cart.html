@@ -23,6 +23,16 @@
             transition: all 0.3s ease;
         }
 
+        .product-card img {
+            width: 100%; /* fixed width */
+            max-width: 60px;
+            height: 60px;
+            object-fit: contain;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+
         /* Card Hover Effect */
         .product-card:hover {
             border: 1px solid #2874f0;
@@ -86,77 +96,67 @@
         .toggle-btn:hover {
             text-decoration: underline;
         }
-
     </style>
 
     <h2>Your Cart</h2>
-
     {% if products %}
         <div class="cart-container">
             {% for product in products %}
-                <div class="product-card">
+                <div class="product-card" data-product-id="{{ product.id }}" data-price="{{ product.price }}">
+                    <div>
+                        {% if product.main_image_list %}
+                            <img src="{{ product.main_image_list.0.image.url }}" alt="{{ product.name }}"
+                                 class="product-image">
+                        {% else %}
+                            <img src="https://via.placeholder.com/60x60?text=No+Image" alt="No image"
+                                 class="product-image">
+                        {% endif %}
+                    </div>
                     <a href="{% url 'product_detail' product.id %}" class="product-link">
                         {{ product.name }}
                     </a>
                     <div class="product-description">
-                        <!-- Short version -->
                         <span class="short-desc">
                             {{ product.description|truncatewords:3 }}
                         </span>
-
-                        <!-- Full version hidden initially -->
                         <span class="full-desc" style="display:none;">
                             {{ product.description }}
                         </span>
-
-                        <!-- Show More button only if description is longer than 3 words -->
                         {% if product.description|wordcount > 3 %}
-                            <button type="button"
-                                    class="toggle-btn"
-                                    onclick="toggleDescription(this)">
+                            <button type="button" class="toggle-btn" onclick="toggleDescription(this)">
                                 More
                             </button>
                         {% endif %}
                     </div>
 
-
-                    <div class="product-price">
-                        ₹{{ product.price|intcomma }}
+                    <div class="product-price" id="price-{{ product.id }}">
+                        ₹{{ product.cart_item_total_price_display }}
                     </div>
 
-                    <div class="quantity-control" style="margin:10px 0; display:flex; align-items:center; gap:5px;">
 
-                        <!-- Decrease button -->
+                    <div class="quantity-control" style="margin:10px 0; display:flex; align-items:center; gap:5px;">
                         <form method="POST" action="{% url 'update_cart_quantity' product.id 'decrease' %}"
-                              style="display:flex; align-items:center;">
+                              style="display:flex; align-items:center;" class="quantity-form">
                             {% csrf_token %}
-                            <button type="submit"
-                                    style="padding:2px 6px; border:none; background:#dc3545; color:white; border-radius:3px; cursor:pointer;">
+                            <button type="submit" class="quantity-btn" data-action="decrease">
                                 −
                             </button>
                         </form>
 
-                        <!-- Quantity display -->
-                        <span style="padding:0 10px;">
+                        <span class="quantity-display" id="quantity-{{ product.id }}" style="padding:0 10px;">
                             {{ product.cart_item_quantity }}
                         </span>
 
-
-                        <!-- Increase button -->
                         <form method="POST" action="{% url 'update_cart_quantity' product.id 'increase' %}"
-                              style="display:flex; align-items:center;">
+                              style="display:flex; align-items:center;" class="quantity-form">
                             {% csrf_token %}
-                            <button type="submit"
-                                    style="padding:2px 6px; border:none; background:#28a745; color:white; border-radius:3px; cursor:pointer;">
+                            <button type="submit" class="quantity-btn" data-action="increase">
                                 +
                             </button>
                         </form>
-
                     </div>
 
-
-                    <form method="POST"
-                          action="{% url 'remove_from_cart' product.id %}">
+                    <form method="POST" action="{% url 'remove_from_cart' product.id %}">
                         {% csrf_token %}
                         <button type="submit" class="remove-btn">
                             Remove
@@ -185,6 +185,67 @@
                 button.innerText = "More";
             }
         }
+
+        // Listen for quantity changes
+        // Function to format numbers with thousands separator
+        function formatPrice(price) {
+            return price.toLocaleString(); // Formats price with commas as thousand separator
+        }
+
+        // Listen for quantity changes
+        const quantityForms = document.querySelectorAll('.quantity-form');
+
+        quantityForms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent the form from submitting normally
+
+                const button = e.target.querySelector('button');
+                const action = button.getAttribute('data-action');
+                const productCard = form.closest('.product-card');
+                const productId = productCard.getAttribute('data-product-id');
+                const price = parseInt(productCard.getAttribute('data-price')); // Current price of product
+                const quantityDisplay = document.getElementById(`quantity-${productId}`);
+                const priceDisplay = document.getElementById(`price-${productId}`);
+
+                let currentQuantity = parseInt(quantityDisplay.innerText);
+
+                if (action === 'increase') {
+                    currentQuantity += 1;
+                } else if (action === 'decrease' && currentQuantity > 1) {
+                    currentQuantity -= 1;
+                }
+
+                // Send AJAX request to update the quantity in the backend
+                fetch(`/cart/update-quantity/${productId}/${action}/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                    },
+                    body: JSON.stringify({})
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.updated_quantity !== undefined && data.updated_price !== undefined) {
+                            // Update the quantity and price on the frontend
+                            quantityDisplay.innerText = data.updated_quantity;
+
+                            // Format and update the price display with commas
+                            const updatedPriceFormatted = formatPrice(data.updated_price);
+                            priceDisplay.innerText = `₹${updatedPriceFormatted}`;
+                        } else {
+                            alert('Error updating cart');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('There was an error updating the cart.');
+                    });
+            });
+        });
+
+
     </script>
+
 
 {% endblock %}

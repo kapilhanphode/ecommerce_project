@@ -27,10 +27,34 @@
         .product-card img {
             width: 100%;
             max-width: 300px;
-            max-height: 250px; /* limit height */
-            object-fit: contain; /* show full image */
+            height: 260px;
+        {#max-height: 250px; /* limit height */#} object-fit: contain; /* show full image */
             border: 1px solid #ccc;
         }
+
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .pagination a {
+            margin: 0 5px;
+            text-decoration: none;
+            color: #2874f0;
+            font-weight: bold;
+        }
+
+        .pagination .current {
+            margin: 0 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .pagination .step-links {
+            display: inline-flex;
+            align-items: center;
+        }
+
 
     </style>
 
@@ -57,6 +81,24 @@
                 </div>
             </a>
         {% endfor %}
+    </div>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if products.has_previous %}
+                <a href="?page=1">&laquo; first</a>
+                <a href="?page={{ products.previous_page_number }}">previous</a>
+            {% endif %}
+
+            <span class="current">
+                Page {{ products.number }} of {{ products.paginator.num_pages }}.
+            </span>
+
+            {% if products.has_next %}
+                <a href="?page={{ products.next_page_number }}">next</a>
+                <a href="?page={{ products.paginator.num_pages }}">last &raquo;</a>
+            {% endif %}
+        </span>
     </div>
 
     <div class="actions">

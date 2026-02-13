@@ -49,6 +49,17 @@
             list-style: none; /* Remove bullets from the navbar */
         {#padding-left: 0; /* Remove default padding */#} margin-bottom: 0;
         }
+
+        .cart-count-badge {
+            font-size: 0.75rem;
+            padding: 0.3em 0.6em;
+            position: relative;
+            top: -15px;
+            right: 10px;
+            background-color: #dc3545; /* Red background for count */
+            color: white;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
@@ -66,21 +77,26 @@
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'about' %}">About</a>
             </li>
-{#            {% if categories %}#}
-{#                {% for category in categories %}#}
-{#                    <li class="nav-item">#}
-{#                        <a class="nav-link" href="{% url 'category_products' category.slug %}">#}
-{#                            {{ category.name }}#}
-{#                        </a>#}
-{#                    </li>#}
-{#                {% endfor %}#}
-{#            {% endif %}#}
-
+            {#            {% if categories %}#}
+            {#                {% for category in categories %}#}
+            {#                    <li class="nav-item">#}
+            {#                        <a class="nav-link" href="{% url 'category_products' category.slug %}">#}
+            {#                            {{ category.name }}#}
+            {#                        </a>#}
+            {#                    </li>#}
+            {#                {% endfor %}#}
+            {#            {% endif %}#}
             <li class="nav-item">
                 <a class="nav-link" href="{% url 'cart' %}">
-                    🛒 Cart ({{ cart_count }})
+                    🛒
+                    {% if cart_count %}
+                        <span class="cart-count-badge">
+                {{ cart_count }}
+            </span>
+                    {% endif %}
                 </a>
             </li>
+
             {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a class="nav-link">Hello, {{ user.username }}</a>
@@ -96,7 +112,7 @@
                 </li>
             {% else %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                    <a class="nav-link" href="{% url 'login' %}">Login11</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'signup' %}">Signup</a>
