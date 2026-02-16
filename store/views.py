@@ -87,7 +87,7 @@ def home(request):
     products = (
         Product.objects
         .prefetch_related(product_main_image_prefetch)
-        .order_by('-id')[:8]
+        .order_by('-id')[:10]
     )
 
     # All categories with main image
